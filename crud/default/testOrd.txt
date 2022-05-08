@@ -1,0 +1,16 @@
+Empresajr=>Edital
+Pesquisa=>Areacapes
+Pesquisa=>Edital
+Pesquisa=>Professor
+Edital=>Tipoedital
+Tipoedital=>null
+Tcc=>Aluno
+Professor=>null
+Aluno=>Curso
+Extensao=>Edital
+Extensao=>Professor
+Auxilio=>Aluno
+Auxilio=>Edital
+Estagio=>Aluno
+Estagio=>Professor
+Turma=>Curso
