@@ -1,5 +1,5 @@
-# EasYii Gii
-EasyYii Gii (generator code Yii2) with Relation person to PostgreSQL
+# Gii Tester
+Gii Tester (Yii2 Test Generator Code) with Person Relationship with PostgreSQL
 
 ## Installation
 
@@ -99,6 +99,12 @@ Go to your gii tools, and notice the new EasYii Gii Generator for models & CRUD
 10. Custom fields for input file (FileInput)
 11. View foreign key data based on RepresentingColumn
 
+## Tests :
+1. Generate all tests of a table
+2. Generate tests for CRUD
+3. Generate tests for data types
+4. Generate tests for Email/CPF
+
 ## Migration Generator :
 1. Generate migration from your database structure (based on : https://github.com/deesoft/yii2-gii)
 
@@ -114,5 +120,5 @@ I'm open for any improvement
 6. thtmorais (https://github.com/thtmorais/easyiigii)
 
 # Developers
-2. AllanKaioBritoMacedo (https://github.com/AllanKaio21)
+2. Allan Kaio Brito Macedo (https://github.com/AllanKaio21)
 
