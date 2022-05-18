@@ -118,6 +118,7 @@ I'm open for any improvement
 4. mdmunir (https://github.com/mdmunir) for JsBlock & Migration Generator (from https://github.com/deesoft/yii2-gii)
 5. mootensai (https://github.com/mootensai) for yii2-enhanced-gii (https://github.com/mootensai/yii2-enhanced-gii)
 6. thtmorais (https://github.com/thtmorais/easyiigii)
+7. petersonsilvadejesus (https://github.com/petersonsilvadejesus)
 
 # Developers
 2. Allan Kaio Brito Macedo (https://github.com/AllanKaio21)
