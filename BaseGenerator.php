@@ -1,6 +1,6 @@
 <?php
 
-namespace petersonsilva\easyiigii;
+namespace allankaio\giitester;
 
 use Yii;
 use yii\base\NotSupportedException;

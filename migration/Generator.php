@@ -1,6 +1,6 @@
 <?php
 
-namespace petersonsilva\easyiigii\migration;
+namespace allankaio\giitester\migration;
 
 use Yii;
 use yii\db\Connection;

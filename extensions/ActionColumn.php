@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace petersonsilva\easyiigii\extensions;
+namespace allankaio\giitester\extensions;
 
 use Yii;
 use yii\grid\Column;

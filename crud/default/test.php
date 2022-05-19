@@ -4,7 +4,7 @@ use yii\helpers\StringHelper;
 use \yii\validators;
 
 $dbName = $generator->getDbConnection()->driverName;
-$helper = new \petersonsilva\easyiigii\helpers();
+$helper = new \allankaio\giitester\helpers();
 $modelClass = $generator->modelClass;
 $modelClassName = StringHelper::basename($generator->modelClass);
 $pks = $generator->tableSchema->primaryKey;

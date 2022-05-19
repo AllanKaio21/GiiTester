@@ -3,7 +3,7 @@
 use yii\helpers\StringHelper;
 
 /* @var $this yii\web\View */
-/* @var $generator \petersonsilva\easyiigii\model\Generator */
+/* @var $generator \allankaio\giitester\model\Generator */
 
 $modelClass = StringHelper::basename($generator->modelClass);
 
