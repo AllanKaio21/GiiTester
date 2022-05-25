@@ -22,9 +22,9 @@ $exist = new validators\ExistValidator();
 $unique = new validators\UniqueValidator();
 $dateValid = new validators\DateValidator();
 //Parametros
-$string = 'Form Tester 001';
-$string2 = 'Form Tester 002';
-$email = 'formtester@gmail.com';
+$string = 'Gii Tester 001';
+$string2 = 'Gii Tester 002';
+$email = 'giitester@gmail.com';
 $date = date('d/m/Y');
 $int = 100;
 $time = '01:00:00';

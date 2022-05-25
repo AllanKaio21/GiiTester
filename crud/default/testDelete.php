@@ -13,8 +13,8 @@ $tableSchema = $generator->tableSchema;
 $model = new $modelClass;
 $labels = $model->attributeLabels();
 //Parametros
-$string = 'Form Tester 002';
-$email = 'formtester@gmail.com';
+$string = 'Gii Tester 002';
+$email = 'giitester@gmail.com';
 $date = date('d/m/Y');
 $int = 100;
 $modelRules = $model->rules();

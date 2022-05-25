@@ -24,9 +24,9 @@ $boolValid = new validators\BooleanValidator();
 $emailValid = new validators\EmailValidator();
 $aux = $helper->isThisRule('nome',$modelRules,'required');
 //Parametros
-$string = 'Form Tester 001';
-$string2 = 'Form Tester 002';
-$email = 'formtester@gmail.com';
+$string = 'Gii Tester 001';
+$string2 = 'Gii Tester 002';
+$email = 'giitester@gmail.com';
 $date = date('d/m/Y').'11';
 $int = 100;
 $time = '01:00:00';
