@@ -25,7 +25,7 @@ to the `require` section of your `composer.json` file.
 1. Then you must add this parameter in config\params.php.
 
 ```php
-    'testepath' => 'Test folder name Ex.: "tests"'
+'testepath' => 'Test folder name Ex.: "tests"'
 ```
 
 2. Then you must add this code at your config\web.php.
