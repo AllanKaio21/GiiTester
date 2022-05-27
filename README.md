@@ -27,7 +27,7 @@ to the `require` section of your `composer.json` file.
 'testepath' => 'Enter the path of the test folder Ex.: "Tests"'
 ```
 
-3. Then you must add this code at your config\web.php.
+2. Then you must add this code at your config\web.php.
 
 ```php
 'components'=>[
