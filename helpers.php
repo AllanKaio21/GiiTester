@@ -5,9 +5,24 @@ namespace allankaio\giitester;
 
 use yii\db\Exception;
 use yiibr\brvalidator\CpfValidator;
-
+use yii\validators\Validator;
 class helpers
 {
+    public function isDefaultValidator($atribute, $modelR)
+    {
+        $validator = Validator::$builtInValidators;
+        foreach ($modelR as $rule) {
+            if(is_array($rule[0])){
+                if(in_array($atribute, $rule[0])){
+                    if(!array_key_exists($rule[1], $validator)){
+                        return [false, $rule[1]];
+                    }
+                }
+            }
+        }
+        return [true, null];
+    }
+
     /** Test execution order function.
      * @param $atribute
      * @return bool ->
