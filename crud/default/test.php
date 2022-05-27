@@ -22,9 +22,9 @@ $exist = new validators\ExistValidator();
 $unique = new validators\UniqueValidator();
 $dateValid = new validators\DateValidator();
 //Parametros
-$string = 'Gii Tester 001';
-$string2 = 'Gii Tester 002';
-$email = 'giitester@gmail.com';
+$string = 'Form Tester 001';
+$string2 = 'Form Tester 002';
+$email = 'formtester@gmail.com';
 $date = date('d/m/Y');
 $int = 100;
 $time = '01:00:00';
@@ -90,7 +90,7 @@ class Test<?= $modelClassName ?>Cest
 <?php if($vfcpf):?>
 <?php $inte[$i] = $helper->genCpfValid()?>
 <?php elseif($vf[0]):?>
-<?php $inte[$i] = $helper->genMinOrMax($vf[1],$vf[2])?>
+<?php $inte[$i] = $helper->genMinOrMax($vf[1],$vf[2],$column->phpType)?>
 <?php elseif($inRange[0]):?>
     <?php $inte[$i] = $inRange[1]?>
 <?php elseif($key[0]):?>
@@ -119,7 +119,7 @@ class Test<?= $modelClassName ?>Cest
 <?php if($vfcpf):?>
 <?php $stringe[$i] = $helper->genCpfValid()?>
 <?php elseif($vf[0]):?>
-<?php $stringe[$i] = $helper->genMinOrMax($vf[1],$vf[2])?>
+<?php $stringe[$i] = $helper->genMinOrMax($vf[1],$vf[2],$column->phpType)?>
 <?php elseif($inRange[0]):?>
 <?php $stringe[$i] = $inRange[1]?>
 <?php elseif($vfemail):?>
@@ -215,7 +215,7 @@ class Test<?= $modelClassName ?>Cest
 <?php elseif($inRange[0]):?>
 <?php $inte[$i] = $inRange[1]?>
 <?php elseif($vf[0]):?>
-<?php $inte[$i] = $helper->genMinOrMax($vf[1],$vf[2])?>
+<?php $inte[$i] = $helper->genMinOrMax($vf[1],$vf[2],$column->phpType)?>
 <?php elseif($key[0]):?>
             <?= "'{$modelClassName}[{$column->name}]' =>" ?> $category2[<?=$j?>]-><?=$arrayfk2[$j][$keys[$j][1]]?>,
 <?php $j++?>
@@ -231,7 +231,7 @@ class Test<?= $modelClassName ?>Cest
 <?php if($vfcpf):?>
 <?php $stringe[$i] = $helper->genCpfValid()?>
 <?php elseif($vf[0]):?>
-<?php $stringe[$i] = $helper->genMinOrMax($vf[1],$vf[2])?>
+<?php $stringe[$i] = $helper->genMinOrMax($vf[1],$vf[2],$column->phpType)?>
 <?php elseif($inRange[0]):?>
 <?php $stringe[$i] = $inRange[1]?>
 <?php elseif($vfemail):?>

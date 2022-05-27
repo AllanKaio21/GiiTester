@@ -62,8 +62,14 @@ class Generator extends \allankaio\giitester\BaseGenerator
     public $relations;
     public $relNxN;
 
-
-    public $nsFunctionalTest = 'app\tests\codeception\functional';
+    /**
+     * @inheritdoc
+     */
+    public function getTestePath(){
+        $path = \Yii::$app->params['testepath'];
+        $testepath = "app/$path/functional";
+        return $testepath;
+    }
 
     /**
      * @inheritdoc
@@ -356,7 +362,7 @@ class Generator extends \allankaio\giitester\BaseGenerator
 
             //functional tests
             $files[] = new CodeFile(
-                Yii::getAlias('@' . str_replace('\\', '/', $this->nsFunctionalTest)) . '/' . $modelClassName . "/Test{$modelClassName}" . 'Cest.php',
+                Yii::getAlias('@' . str_replace('\\', '/', $this->getTestePath())) . '/' . $modelClassName . "/Test{$modelClassName}" . 'Cest.php',
                    $this->render('test.php', [
                         'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                    ])
@@ -364,7 +370,7 @@ class Generator extends \allankaio\giitester\BaseGenerator
 
             //functional tests date types
             $files[] = new CodeFile(
-                Yii::getAlias('@' . str_replace('\\', '/', $this->nsFunctionalTest)) . '/' . $modelClassName . "/Test{$modelClassName}DateTypes" . 'Cest.php',
+                Yii::getAlias('@' . str_replace('\\', '/', $this->getTestePath())) . '/' . $modelClassName . "/Test{$modelClassName}DateTypes" . 'Cest.php',
                 $this->render('testDateTypes.php', [
                     'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                 ])
@@ -372,7 +378,7 @@ class Generator extends \allankaio\giitester\BaseGenerator
 
             //functional tests Delete
             $files[] = new CodeFile(
-                Yii::getAlias('@' . str_replace('\\', '/', $this->nsFunctionalTest)) . '/' . $modelClassName.'Delete' . "/Test{$modelClassName}Delete" . 'Cest.php',
+                Yii::getAlias('@' . str_replace('\\', '/', $this->getTestePath())) . '/' . $modelClassName.'Delete' . "/Test{$modelClassName}Delete" . 'Cest.php',
                 $this->render('testDelete.php', [
                     'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                 ])

@@ -24,9 +24,9 @@ $boolValid = new validators\BooleanValidator();
 $emailValid = new validators\EmailValidator();
 $aux = $helper->isThisRule('nome',$modelRules,'required');
 //Parametros
-$string = 'Gii Tester 001';
-$string2 = 'Gii Tester 002';
-$email = 'giitester@gmail.com';
+$string = 'Form Tester 001';
+$string2 = 'Form Tester 002';
+$email = 'formtester@gmail.com';
 $date = date('d/m/Y').'11';
 $int = 100;
 $time = '01:00:00';
@@ -48,7 +48,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if (($column->allowNull==false && $column->name!=$pks[0]) || $helper->isThisRule($column->name, $modelRules, 'required')): ?>
 <?php $options = $require->getClientOptions($model, $column->name)?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'required')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'required', $column->name)?>
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php else:?>
@@ -77,7 +77,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php $integer->init()?>
 <?php $integer->validateAttribute($model, $column->name)?>
 <?php $options = $integer->getClientOptions($model, $column->name)?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'integer')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'integer', $column->name)?>
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php else:?>
@@ -102,7 +102,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if ($column->phpType=='boolean' &&!$column->isPrimaryKey):?>
 <?php $options = $boolValid->getClientOptions($model, $column->name)?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'boolean')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'boolean', $column->name)?>
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php else:?>
@@ -139,7 +139,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if($helper->isFormatDate($column->name, $modelRules)[0]):?>
 <?php if ($column->type=='date' && !$column->isPrimaryKey && isset($labels[$column->name])):?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'date')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'date', $column->name)?>
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php else:?>
@@ -159,7 +159,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $vf = $helper->isMinOrMax($column->name,$modelRules)?>
 <?php if ($vf[0]):?>
-            <?= "'{$modelClassName}[{$column->name}]' =>"?> '<?=$helper->genMinOrMaxFail($vf[1],$vf[2])?>',
+            <?= "'{$modelClassName}[{$column->name}]' =>"?> '<?=$helper->genMinOrMaxFail($vf[1],$vf[2],$column->phpType)?>',
 <?php endif;?>
 <?php endforeach;?>
         ]);
@@ -196,7 +196,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php if ($column->type=='url' && !$column->isPrimaryKey):?>
 <?php $url->validateAttribute($model, $column->name)?>
 <?php $options = $url->getClientOptions($model, $column->name)?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'url')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'url', $column->name)?>
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php else:?>
@@ -229,7 +229,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php $i = 0?>
 <?php foreach ($arrayfk as $fk): ?>
 <?php if (isset($labels[$col[$i]])):?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'exist')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'exist', $column->name)?>
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php else:?>
@@ -255,7 +255,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php endforeach;?>
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $uni = $helper->uniqueField($column->name, $modelRules)?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'unique')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'unique', $column->name)?>
 <?php if ($column->phpType=='integer' && $uni):?>
         $I->submitForm('form',[
             <?="'{$modelClassName}[{$column->name}]' => "?>$category-><?=$column->name?>]);
@@ -302,7 +302,7 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php $vfemail = $helper->emailField($column->name,$modelRules)?>
 <?php if ($vfemail):?>
 <?php $options = $emailValid->getClientOptions($model, $column->name)?>
-<?php $isCusMens = $helper->isCustomMessage($modelRules, 'email')?>
+<?php $isCusMens = $helper->isCustomMessage($modelRules, 'email', $column->name)?>
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php else:?>

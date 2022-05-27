@@ -22,7 +22,13 @@ to the `require` section of your `composer.json` file.
 
 ## Configuration
 
-1. Then you must add this code at your config\web.php.
+1. Then you must add this parameter in config\params.php.
+
+```php
+    'testepath' => 'Test folder name Ex.: "tests"'
+```
+
+2. Then you must add this code at your config\web.php.
 
 ```php
 'components'=>[
@@ -57,7 +63,7 @@ See gridview settings on http://demos.krajee.com/grid#module
 
 See datecontrol settings on http://demos.krajee.com/datecontrol#module
 
-2. In your config/console.php (this is needed for migrations and working with console)
+3. In your config/console.php (this is needed for migrations and working with console)
 
 ```php
 'modules'=>[
@@ -68,7 +74,7 @@ See datecontrol settings on http://demos.krajee.com/datecontrol#module
 ],
 ```
 
-3. Run migrations
+4. Run migrations
 ```php
 ./yii migrate --migrationPath=vendor/webvimark/module-user-management/migrations/
 ```

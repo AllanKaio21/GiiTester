@@ -15,23 +15,24 @@ class helpers
      */
     public function testerExecOrder()
     {
+        $testepath = \Yii::$app->params['testepath'];
         $order = $this->testerOrder();
         $body = ['#! /bin/bash','echo -e "[1] Run all tests  [2] Run a specific test "','echo -n "=> "','read resp','case "$resp" in','   1|1|"")'];
         $nameFile = 'runtests';
-        $file = "/app/tests/codeception/functional/$nameFile";
+        $file = "/app/$testepath/functional/$nameFile";
         $break = "\n";
         foreach ($order as $name){
-            $dir = "/app/tests/codeception/functional/$name";
+            $dir = "/app/$testepath/functional/$name";
             if(file_exists($dir)){
-                $cmd = '      "/app/vendor/bin/codecept" "run" "codeception/functional/'.$name.'" "--steps"';
+                $cmd = '      "/app/vendor/bin/codecept" "run" "'.$testepath.'/functional/'.$name.'" "--steps"';
                 array_push($body, $cmd);
             }
         }
         $orderDel = array_reverse($order);
         foreach ($orderDel as $name){
-            $dir = "/app/tests/codeception/functional/$name"."Delete";
+            $dir = "/app/$testepath/functional/$name"."Delete";
             if(file_exists($dir)){
-                $cmd = '      "/app/vendor/bin/codecept" "run" "codeception/functional/'.$name.'Delete'.'" "--steps"';
+                $cmd = '      "/app/vendor/bin/codecept" "run" "'.$testepath.'/functional/'.$name.'Delete" "--steps"';
                 array_push($body, $cmd);
             }
         }
@@ -136,7 +137,8 @@ class helpers
     public function testerOrder()
     {
         $i = 0;
-        $file = '/app/vendor/allankaio\giitester/crud/default/testOrd.txt';
+        $testepath = \Yii::$app->params['testepath'];
+        $file = "/app/$testepath/ordertests.txt";
         if (file_exists($file)) {
             $open = fopen($file, "r");
             while (!feof($open)) {
@@ -145,7 +147,8 @@ class helpers
             }
             fclose($open);
         } else {
-            return [false, "Falha ao ler arquivo! => .$file."];
+            fopen($file, "a+");
+            return $this->testerOrder();
         }
         $arrayOrd = [];
         for($i = 0; $i < count($array)-1; $i++){
@@ -194,7 +197,8 @@ class helpers
      */
     public function testerSave($atribute)
     {
-        $file = '/app/vendor/allankaio/giitester/crud/default/testOrd.txt';
+        $testepath = \Yii::$app->params['testepath'];
+        $file = "/app/$testepath/ordertests.txt";
         for($i=1;$i<count($atribute);$i++) {
             if (file_exists($file)) {
                 $open = fopen($file, "a+");
@@ -206,8 +210,10 @@ class helpers
                 }
                 fwrite($open, $atribute[$i]);
                 fclose($open);
+                chmod($file, 0755);
             } else {
-                return false;
+                fopen($file, "a+");
+                return $this->testerSave($atribute);
             }
         }
         return true;
@@ -238,12 +244,16 @@ class helpers
      * @param $
      * @return [bool, range]
      */
-    public function isCustomMessage($modelR, $rule)
+    public function isCustomMessage($modelR, $rule, $name)
     {
         foreach ($modelR as $rules) {
             if($rules[1] == $rule) {
-                if(array_key_exists("message", $rules)){
-                    return [true, $rules['message']];
+                if(is_array($rules[0])) {
+                    if(in_array($name, $rules[0])) {
+                        if (array_key_exists("message", $rules)) {
+                            return [true, $rules['message']];
+                        }
+                    }
                 }
             }
         }
@@ -387,15 +397,23 @@ class helpers
      * @param $max
      * @return string
      */
-    public function genMinOrMax($min, $max){
+    public function genMinOrMax($min, $max, $type){
         $value = '';
-        if($max == null) {
-            for($i = 0; $i < $min; $i++){
-                $value = $value.''.rand(0,9);
+        if($type != "integer") {
+            if ($max == null) {
+                for ($i = 0; $i < $min; $i++) {
+                    $value = $value . '' . rand(0, 9);
+                }
+            } else {
+                for ($i = 0; $i < $max; $i++) {
+                    $value = $value . '' . rand(0, 9);
+                }
             }
         }else{
-            for($i = 0; $i < $max; $i++){
-                $value = $value.''.rand(0,9);
+            if ($max == null) {
+                $value = rand($min, $min + 1);
+            } else {
+                $value = rand($max - 1, $max);
             }
         }
         return $value;
@@ -406,15 +424,23 @@ class helpers
      * @param $max
      * @return string
      */
-    public function genMinOrMaxFail($min, $max){
+    public function genMinOrMaxFail($min, $max, $type){
         $value = '';
-        if($max == null) {
-            for($i = 0; $i < $min-1; $i++){
-                $value = $value.''.rand(0,9);
+        if($type != "integer") {
+            if ($max == null) {
+                for ($i = 0; $i < $min+1; $i++) {
+                    $value = $value . '' . rand(0, 9);
+                }
+            } else {
+                for ($i = 0; $i < $max+1; $i++) {
+                    $value = $value . '' . rand(0, 9);
+                }
             }
         }else{
-            for($i = 0; $i < $max+1; $i++){
-                $value = $value.''.rand(0,9);
+            if ($max == null) {
+                $value = rand($min - 2, $min - 1);
+            } else {
+                $value = rand($max, $max + 1);
             }
         }
         return $value;
