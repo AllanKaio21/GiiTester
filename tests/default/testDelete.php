@@ -10,16 +10,22 @@ $modelClassName = StringHelper::basename($generator->modelClass);
 $pks = $generator->tableSchema->primaryKey;
 $arrayfk = $generator->tableSchema->foreignKeys;
 $tableSchema = $generator->tableSchema;
-$model = new $modelClass;
-$labels = $model->attributeLabels();
+$modelvf = "/".$modelClass.".php";
+$bar = str_replace(" ", "", "\ ");
+$modelvf = str_replace($bar, "/", $modelvf);
+if(file_exists($modelvf)) {
+    $model = new $modelClass;
+    $modelRules = $model->rules();
+    $labels = $model->attributeLabels();
+}
 //Parametros
 $string = 'Form Tester 002';
 $email = 'formtester@gmail.com';
 $date = date('d/m/Y');
 $int = 100;
-$modelRules = $model->rules();
 echo "<?php\n";
 ?>
+<?php if(file_exists($modelvf)):?>
 class Test<?= $modelClassName ?>DeleteCest
 {
 <?php $atribute[0] = $modelClassName?>
@@ -69,3 +75,6 @@ class Test<?= $modelClassName ?>DeleteCest
     }
 }
 <?php $helper->testerExecOrder()?>
+<?php else:?>
+    //TODO: Template "<?=$modelvf?>" not found, you must create the template for this table before creating the autotest.
+<?php endif;?>

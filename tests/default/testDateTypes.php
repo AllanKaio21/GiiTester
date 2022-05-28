@@ -10,9 +10,14 @@ $modelClassName = StringHelper::basename($generator->modelClass);
 $pks = $generator->tableSchema->primaryKey;
 $arrayfk = $generator->tableSchema->foreignKeys;
 $tableSchema = $generator->tableSchema;
-$model = new $modelClass;
-$modelRules = $model->rules();
-$labels = $model->attributeLabels();
+$modelvf = "/".$modelClass.".php";
+$bar = str_replace(" ", "", "\ ");
+$modelvf = str_replace($bar, "/", $modelvf);
+if(file_exists($modelvf)) {
+    $model = new $modelClass;
+    $modelRules = $model->rules();
+    $labels = $model->attributeLabels();
+}
 $require = new validators\RequiredValidator();
 $integer = new validators\NumberValidator();
 $exist = new validators\ExistValidator();
@@ -22,7 +27,6 @@ $url = new validators\UrlValidator();
 $dateValid = new validators\DateValidator();
 $boolValid = new validators\BooleanValidator();
 $emailValid = new validators\EmailValidator();
-$aux = $helper->isThisRule('nome',$modelRules,'required');
 //Parametros
 $string = 'Form Tester 001';
 $string2 = 'Form Tester 002';
@@ -33,6 +37,7 @@ $time = '01:00:00';
 $bool = true;
 echo "<?php\n";
 ?>
+<?php if(file_exists($modelvf)):?>
 class Test<?= $modelClassName ?>DateTypesCest
 {
     public function _before(FunctionalTester $I){
@@ -313,3 +318,6 @@ class Test<?= $modelClassName ?>DateTypesCest
     }
 }
 <?php $helper->testerExecOrder()?>
+<?php else:?>
+    //TODO: Template "<?=$modelvf?>" not found, you must create the template for this table before creating the autotest.
+<?php endif;?>

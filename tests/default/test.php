@@ -10,8 +10,14 @@ $modelClassName = StringHelper::basename($generator->modelClass);
 $pks = $generator->tableSchema->primaryKey;
 $arrayfk = $generator->tableSchema->foreignKeys;
 $tableSchema = $generator->tableSchema;
-$model = new $modelClass;
-$labels = $model->attributeLabels();
+$modelvf = "/".$modelClass.".php";
+$bar = str_replace(" ", "", "\ ");
+$modelvf = str_replace($bar, "/", $modelvf);
+if(file_exists($modelvf)) {
+    $model = new $modelClass;
+    $modelRules = $model->rules();
+    $labels = $model->attributeLabels();
+}
 $require = new validators\RequiredValidator();
 $integer = new validators\NumberValidator();
 $integer->integerOnly = true;
@@ -29,9 +35,10 @@ $date = date('d/m/Y');
 $int = 100;
 $time = '01:00:00';
 $bool = true;
-$modelRules = $model->rules();
+
 echo "<?php\n";
 ?>
+<?php if(file_exists($modelvf)):?>
 <?php $i=0?>
 <?php $keys = []?>
 <?php $arrayfk2 = []?>
@@ -304,3 +311,6 @@ class Test<?= $modelClassName ?>Cest
 
 }
 <?php $helper->testerExecOrder()?>
+<?php else:?>
+    //TODO: Template "<?=$modelvf?>" not found, you must create the template for this table before creating the autotest.
+<?php endif;?>
