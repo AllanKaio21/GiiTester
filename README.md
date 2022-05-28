@@ -24,10 +24,10 @@ to the `require` section of your `composer.json` file.
 
 1. Then you must add this parameter to config\params.php.
 ```php
-'testepath' => 'Enter the path of the test folder Ex.: "Tests"'
+'testepath' => 'tests'
 ```
 
-2. Then you must add this code at your config\web.php.
+3. Then you must add this code at your config\web.php.
 
 ```php
 'components'=>[

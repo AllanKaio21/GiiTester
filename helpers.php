@@ -8,6 +8,11 @@ use yiibr\brvalidator\CpfValidator;
 use yii\validators\Validator;
 class helpers
 {
+    /** The function of checking if an attribute contains a custom rule.
+     * @param $atribute
+     * @param $modelR
+     * @return [bool, rule]
+     */
     public function isDefaultValidator($atribute, $modelR)
     {
         $validator = Validator::$builtInValidators;

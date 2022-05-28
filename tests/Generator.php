@@ -1,5 +1,5 @@
 <?php
-namespace allankaio\giitester\crud;
+namespace allankaio\giitester\tests;
 
 use Yii;
 use yii\db\ActiveRecord;
@@ -14,7 +14,7 @@ use yii\web\Controller;
 use allankaio\giitester\Informations;
 
 /**
- * Generates Relational CRUD
+ * Generates Tests
  *
  *
  * @author Yohanes Candrajaya <moo.tensai@gmail.com>
@@ -65,9 +65,18 @@ class Generator extends \allankaio\giitester\BaseGenerator
     /**
      * @inheritdoc
      */
+    public function getTestePath(){
+        $path = \Yii::$app->params['testepath'];
+        $testepath = "app/$path/functional";
+        return $testepath;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getName()
     {
-        return 'EasYii Gii (CRUD)';
+        return 'Gii Tester (Tests)';
     }
 
     /**
@@ -75,8 +84,7 @@ class Generator extends \allankaio\giitester\BaseGenerator
      */
     public function getDescription()
     {
-        return 'This generator generates controller and views that implement CRUD (Create, Read, Update, Delete)
-            operations for the database.';
+        return 'This generator creates automatic tests from the rules of the models and the database.';
     }
 
     /**
@@ -273,7 +281,7 @@ class Generator extends \allankaio\giitester\BaseGenerator
      */
     public function requiredTemplates()
     {
-        return ['controller.php'];
+        return ['test.php'];
     }
 
     /**
@@ -310,84 +318,40 @@ class Generator extends \allankaio\giitester\BaseGenerator
         $this->skippedColumns = array_filter($this->skippedColumns);
         $this->skippedRelations = array_filter($this->skippedRelations);
         foreach ($this->getTableNames() as $tableName) {
-            // model :
+            // Name Model Class:
             if (strpos($this->tableName, '*') !== false) {
                 $modelClassName = $this->generateClassName($tableName);
-                $controllerClassName = $modelClassName . 'Controller';
             } else {
                 $modelClassName = (!empty($this->modelClass)) ? $this->modelClass : Inflector::id2camel($tableName, '_');
-                $controllerClassName = (!empty($this->controllerClass)) ? $this->controllerClass : $modelClassName . 'Controller';
             }
-//            $queryClassName = ($this->generateQuery) ? $this->generateQueryClassName($modelClassName) : false;
             $tableSchema = $db->getTableSchema($tableName);
             $this->modelClass = "{$this->nsModel}\\{$modelClassName}";
             $this->tableSchema = $tableSchema;
-//            $this->relations = isset($relations[$tableName]) ? $relations[$tableName] : [];
-            $this->controllerClass = $this->nsController . '\\' . $controllerClassName;
             $isTree = !array_diff(self::getTreeColumns(), $tableSchema->columnNames);
 
-            // search model :
-            if ($this->generateSearchModel && !$isTree) {
-                if (empty($this->searchModelClass) || strpos($this->tableName, '*') !== false) {
-                    $searchModelClassName = $modelClassName . 'Search';
-                } else {
-                    if ($this->nsSearchModel === $this->nsModel && $this->searchModelClass === $modelClassName) {
-                        $searchModelClassName = $this->searchModelClass . 'Search';
-                    } else {
-                        $searchModelClassName = $this->searchModelClass;
-                    }
-                }
-                $this->searchModelClass = $this->nsSearchModel . '\\' . $searchModelClassName;
-                $searchModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->searchModelClass, '\\') . '.php'));
-                $files[] = new CodeFile($searchModel, $this->render('search.php',
-                    ['relations' => isset($relations[$tableName]) ? $relations[$tableName] : []]));
-            }
-
-            //controller
+            //functional tests
             $files[] = new CodeFile(
-                Yii::getAlias('@' . str_replace('\\', '/', $this->nsController)) . '/' . $controllerClassName . '.php',
-                   $this->render('controller.php', [
+                Yii::getAlias('@' . str_replace('\\', '/', $this->getTestePath())) . '/' . $modelClassName . "/Test{$modelClassName}" . 'Cest.php',
+                   $this->render('test.php', [
                         'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                    ])
             );
 
-            // views :
-            $viewPath = $this->getViewPath();
-            $templatePath = $this->getTemplatePath() . '/views';
-            foreach (scandir($templatePath) as $file) {
-//                if($file === '_formNested.php')
-//                    echo  $file;
-                if (empty($this->searchModelClass) && $file === '_search.php') {
-                    continue;
-                }
-                if($isTree && ($file === 'index.php' || $file === 'view.php' || $file === '_form.php'
-                    || $file === 'create.php' || $file === 'update.php'
-                    )){
-                    continue;
-                }
-                if(!$isTree && ($file === 'indexNested.php' || $file === '_formNested.php')){
-                    continue;
-                }
-                if (is_file($templatePath . '/' . $file) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
-                    $fileName = ($isTree) ? str_replace('Nested','',$file) : $file;
-                    $files[] = new CodeFile("$viewPath/$fileName", $this->render("views/$file", [
-                        'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
-                        'isTree' => $isTree
-                    ]));
-                }
-            }
+            //functional tests date types
+            $files[] = new CodeFile(
+                Yii::getAlias('@' . str_replace('\\', '/', $this->getTestePath())) . '/' . $modelClassName . "/Test{$modelClassName}DateTypes" . 'Cest.php',
+                $this->render('testDateTypes.php', [
+                    'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
+                ])
+            );
 
-            if (strpos($this->tableName, '*') !== false || $isTree) {
-                $this->modelClass = '';
-                $this->controllerClass = '';
-                $this->searchModelClass = '';
-            } else {
-                $this->modelClass = $modelClassName;
-                $this->controllerClass = $controllerClassName;
-                if ($this->generateSearchModel) {
-                    $this->searchModelClass = $searchModelClassName;
-                }
-            }
+            //functional tests Delete
+            $files[] = new CodeFile(
+                Yii::getAlias('@' . str_replace('\\', '/', $this->getTestePath())) . '/' . $modelClassName.'Delete' . "/Test{$modelClassName}Delete" . 'Cest.php',
+                $this->render('testDelete.php', [
+                    'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
+                ])
+            );
         }
         $this->nameAttribute = (is_array($this->nameAttribute)) ? implode(', ', $this->nameAttribute) : '';
         $this->hiddenColumns = (is_array($this->hiddenColumns)) ? implode(', ', $this->hiddenColumns) : '';
