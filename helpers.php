@@ -474,10 +474,16 @@ class helpers
     public function isMinOrMax($atribute, $modelR)
     {
         for ($i = 0; $i < count($modelR); $i++) {
-            if (array_key_exists("min", $modelR[$i])||array_key_exists("max", $modelR[$i])) {
+            if (array_key_exists("max", $modelR[$i])) {
                 for ($j = 0; $j < count($modelR[$i][0]); $j++) {
                     if ($modelR[$i][0][$j] == $atribute) {
-                        return [true, $modelR[$i]['min'], $modelR[$i]['max']];
+                        return [true, null, $modelR[$i]['max']];
+                    }
+                }
+            }elseif (array_key_exists("min", $modelR[$i])) {
+                for ($j = 0; $j < count($modelR[$i][0]); $j++) {
+                    if ($modelR[$i][0][$j] == $atribute) {
+                        return [true, $modelR[$i]['min'], null];
                     }
                 }
             }
