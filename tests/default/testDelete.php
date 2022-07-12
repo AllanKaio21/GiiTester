@@ -68,7 +68,7 @@ class Test<?= $modelClassName ?>DeleteCest
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if ($column->isPrimaryKey):?>
         $id = $model-><?=$column->name?>;
-        $I->sendAjaxPostRequest('/<?= $route ?>/delete', ['id' => $id]);
+        $I->amOnRoute('/<?= $route ?>/delete', ['id' => $id]);
 <?php break;?>
 <?php endif;?>
 <?php endforeach;?>
