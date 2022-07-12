@@ -1,5 +1,6 @@
 <?php
 
+use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use \yii\validators;
 
@@ -35,7 +36,7 @@ $date = date('d/m/Y');
 $int = 100;
 $time = '01:00:00';
 $bool = true;
-
+$route = Inflector::camel2id($modelClassName);
 echo "<?php\n";
 ?>
 <?php if(file_exists($modelvf)):?>
@@ -46,7 +47,7 @@ echo "<?php\n";
 <?php $j=0?>
 <?php foreach ($tableSchema->columns as $column):?>
 <?php $aux[$j] = [$fk[0], array_keys($fk)[1]];?>
-<?php if($aux[$j][1] == $column->name && $column->allowNull==false):?>
+<?php if($aux[$j][1] == $column->name):?>
 <?php $value = [$fk[0], array_keys($fk)[1]]?>
 <?php array_push($keys, $value);?>
 <?php array_push($arrayfk2,  $fk)?>
@@ -62,20 +63,20 @@ echo "<?php\n";
 class Test<?= $modelClassName ?>Cest
 {
     public function _before(FunctionalTester $I){
-        $I->login('superadmin','superadmin');
+        // TODO: Enter a login method if needed!
     }
 
     //Test Template Form
     public function <?= $modelClassName . 'Form' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for form');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
 <?php //Get dependencies?>
 <?php $i=0?>
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $key = $helper->isKey($keys, $column->name)?>
-<?php if($key[0] && $column->allowNull==false):?>
-        $category[<?=$i?>] = $I->grabRecord('app\models\<?=$key[1]?>', array());
+<?php if($key[0]):?>
+        $model[<?=$i?>] = $I->grabRecord('app\models\<?=$key[1]?>', array());
 <?php $i++?>
 <?php endif;?>
 <?php endforeach;?>
@@ -94,7 +95,7 @@ class Test<?= $modelClassName ?>Cest
 <?php $vfdate = $helper->isFormatDate($column->name, $modelRules)?>
 <?php $isDefault = $helper->isDefaultValidator($column->name, $modelRules)?>
 <?php $vfrequired = $helper->isThisRule($column->name, $modelRules, 'required')?>
-<?php if (($column->allowNull==false || $vfrequired) && $column->phpType=='integer'):?>
+<?php if ($column->phpType=='integer' && !$column->autoIncrement):?>
 <?php if($vfcpf):?>
 <?php $inte[$i] = $helper->genCpfValid()?>
 <?php elseif($vf[0]):?>
@@ -102,7 +103,7 @@ class Test<?= $modelClassName ?>Cest
 <?php elseif($inRange[0]):?>
     <?php $inte[$i] = $inRange[1]?>
 <?php elseif($key[0]):?>
-            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $category[<?=$j?>]-><?=$arrayfk2[array_search($column->name,$key2)][$column->name]?>,
+            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $model[<?=$j?>]-><?=$arrayfk2[array_search($column->name,$key2)][$column->name]?>,
 <?php if(!$isDefault[0]):?>
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
@@ -116,7 +117,7 @@ class Test<?= $modelClassName ?>Cest
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
 <?php endif;?>
-<?php elseif (($column->allowNull==false || $vfrequired) && $column->type=='date' ):?>
+<?php elseif ($column->type=='date' && !$column->autoIncrement):?>
 <?php if($vfdate[0]):?>
 <?php $format = substr($vfdate[1], 4)?>
 <?php $datee[$i] = date($format);?>
@@ -131,17 +132,17 @@ class Test<?= $modelClassName ?>Cest
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
 <?php endif;?>
-<?php elseif (($column->allowNull==false || $vfrequired) &&$column->type=='boolean' ):?>
+<?php elseif ($column->type=='boolean' && !$column->autoIncrement):?>
             <?= "'{$modelClassName}[{$column->name}]' => $bool" ?>,
 <?php if(!$isDefault[0]):?>
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
-<?php elseif(($column->allowNull==false || $vfrequired) && $column->type == 'time'):?>
+<?php elseif($column->type == 'time' && !$column->autoIncrement):?>
             <?= "'{$modelClassName}[{$column->name}]' => '$time'" ?>,
 <?php if(!$isDefault[0]):?>
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
-<?php elseif (($column->allowNull==false || $vfrequired) && $column->type=='text'):?>
+<?php elseif (($column->type=='text' || $column->type=='string') && !$column->autoIncrement):?>
 <?php if($vfcpf):?>
 <?php $stringe[$i] = $helper->genCpfValid()?>
 <?php elseif($vf[0]):?>
@@ -151,7 +152,7 @@ class Test<?= $modelClassName ?>Cest
 <?php elseif($vfemail):?>
 <?php $stringe[$i] = $email?>
 <?php elseif($key[0]):?>
-            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $category[<?=$j?>]-><?=$arrayfk2[array_search($column->name, $key2)][$column->name]?>,
+            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $model[<?=$j?>]-><?=$arrayfk2[array_search($column->name, $key2)][$column->name]?>,
 <?php if(!$isDefault[0]):?>
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
@@ -165,8 +166,9 @@ class Test<?= $modelClassName ?>Cest
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
 <?php endif;?>
-<?php elseif (($column->allowNull==false || $vfrequired)):?>
+<?php elseif (!$column->autoIncrement):?>
             <?= "'{$modelClassName}[{$column->name}]' => ''" ?>,
+            // TODO: o "<?= $column->name?>" field not recognized, enter manually.
 <?php if(!$isDefault[0]):?>
             //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
 <?php endif;?>
@@ -181,28 +183,28 @@ class Test<?= $modelClassName ?>Cest
 <?php $key = $helper->isKey($keys, $column->name)?>
 <?php $vfrequired = $helper->isThisRule($column->name, $modelRules, 'required')?>
 <?php $isDefault = $helper->isDefaultValidator($column->name, $modelRules)?>
-<?php if (($column->allowNull==false || $vfrequired) && $column->phpType=='integer' && !$column->isPrimaryKey && $isDefault[0]):?>
+<?php if ($column->phpType=='integer' && !$column->isPrimaryKey && $isDefault[0] && !$key[0]):?>
         $I->seeRecord('app\models\<?= $modelClassName ?>', [
-            <?= "'$column->name' => "?><?= $key[0] ? '$category[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$inte[$i]'" ?>,
+            <?= "'$column->name' => "?><?= $key[0] ? '$model[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$inte[$i]'" ?>,
         ]);
-<?php elseif (($column->allowNull==false || $vfrequired) && $column->type=='date' && !$column->isPrimaryKey && $isDefault[0]):?>
+<?php elseif ($column->type=='date' && !$column->isPrimaryKey && $isDefault[0] && !$key[0]):?>
         $I->seeRecord('app\models\<?= $modelClassName ?>', [
-            <?= "'$column->name' => "?><?= $key[0] ? '$category[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$datee[$i]'" ?>,
+            <?= "'$column->name' => "?><?= $key[0] ? '$model[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$datee[$i]'" ?>,
         ]);
-<?php elseif (($column->allowNull==false || $vfrequired) && $column->type=='boolean' && !$column->isPrimaryKey):?>
+<?php elseif ($column->type=='boolean' && !$column->isPrimaryKey && !$key[0]):?>
         $I->seeRecord('app\models\<?= $modelClassName ?>', [
-            <?= "'$column->name' => "?><?= $key[0] ? '$category[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$bool[$i]'" ?>,
+            <?= "'$column->name' => "?><?= $key[0] ? '$model[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$bool[$i]'" ?>,
         ]);
-<?php elseif (($column->allowNull==false || $vfrequired) && $column->type == 'time'):?>
+<?php elseif ($column->type == 'time' && !$key[0]):?>
         $I->seeRecord('app\models\<?= $modelClassName ?>', [
-            <?= "'$column->name' => "?><?= $key[0] ? '$category[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$time[$i]'" ?>,
+            <?= "'$column->name' => "?><?= $key[0] ? '$model[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$time[$i]'" ?>,
         ]);
-<?php elseif (($column->allowNull==false || $vfrequired) && $column->type=='text' && !$column->isPrimaryKey && $isDefault[0]):?>
+<?php elseif (($column->type=='text' || $column->type=='string') && !$column->isPrimaryKey && $isDefault[0] && !$key[0]):?>
         $I->seeRecord('app\models\<?= $modelClassName ?>', [
-            <?= "'$column->name' => "?><?= $key[0] ? '$category[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$stringe[$i]'" ?>,
+            <?= "'$column->name' => "?><?= $key[0] ? '$model[' . $j . ']->' . $arrayfk2[array_search($column->name, $key2)][$column->name] : "'$stringe[$i]'" ?>,
         ]);
 <?php endif;?>
-<?php if($key[0] && ($column->allowNull==false || $vfrequired)):?>
+<?php if($key[0]):?>
 <?php $j++;?>
 <?php endif;?>
 <?php $i++;?>
@@ -215,26 +217,27 @@ class Test<?= $modelClassName ?>Cest
         $I->wantTo("Verify exception for Update");
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $key = $helper->isKey($keys, $column->name)?>
-<?php if ($column->allowNull==false && !$column->isPrimaryKey && $column->type=='text'):?>
-        $category = $I->grabRecord('app\models\<?=$modelClassName?>', array('<?=$column->name?>' => '<?=$string?>'));
+<?php if (!$column->isPrimaryKey && ($column->type=='text' || $column->type=='string')):?>
+        $model = $I->grabRecord('app\models\<?=$modelClassName?>', array('<?=$column->name?>' => '<?=$string?>'));
 <?php break;?>
-<?php elseif ($column->allowNull==false && !$column->isPrimaryKey && $column->phpType=='integer'):?>
-        $category = $I->grabRecord('app\models\<?=$modelClassName?>', array('<?=$column->name?>' => '<?=$int?>'));
+<?php elseif (!$column->isPrimaryKey && $column->phpType=='integer'):?>
+        $model = $I->grabRecord('app\models\<?=$modelClassName?>', array('<?=$column->name?>' => '<?=$int?>'));
 <?php break;?>
 <?php endif;?>
 <?php endforeach;?>
 <?php $i=0?>
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $key = $helper->isKey($keys, $column->name)?>
-<?php if($key[0] && $column->allowNull==false):?>
-        $category2[<?=$i?>] = $I->grabRecord('app\models\<?=$key[1]?>', array());
+<?php if($key[0]):?>
+        $model2[<?=$i?>] = $I->grabRecord('app\models\<?=$key[1]?>', array());
 <?php $i++?>
 <?php endif;?>
 <?php endforeach;?>
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if ($column->isPrimaryKey):?>
-        $id = $category-><?=$column->name?>;
-        $I->sendAjaxPostRequest(['/<?=$tableSchema->fullName?>/update', 'id' => $id],[
+        $id = $model-><?=$column->name?>;
+        $I->amOnRoute('<?=$route?>/update',['<?= $column->name?>' => $id]);
+        $I->submitForm('form',[
 <?php break;?>
 <?php endif;?>
 <?php endforeach;?>
@@ -246,7 +249,8 @@ class Test<?= $modelClassName ?>Cest
 <?php $vfcpf = $helper->cpfField($column->name,$modelRules)?>
 <?php $vfemail = $helper->emailField($column->name,$modelRules)?>
 <?php $key = $helper->isKey($keys, $column->name)?>
-<?php if ($column->allowNull==false && $column->phpType=='integer' && !$column->isPrimaryKey):?>
+<?php $isDefault = $helper->isDefaultValidator($column->name, $modelRules)?>
+<?php if ($column->phpType=='integer' && !$column->isPrimaryKey):?>
 <?php if($vfcpf):?>
 <?php $inte[$i] = $helper->genCpfValid()?>
 <?php elseif($inRange[0]):?>
@@ -254,7 +258,7 @@ class Test<?= $modelClassName ?>Cest
 <?php elseif($vf[0]):?>
 <?php $inte[$i] = $helper->genMinOrMax($vf[1],$vf[2],$column->phpType)?>
 <?php elseif($key[0]):?>
-            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $category2[<?=$j?>]-><?=$arrayfk2[$j][$keys[$j][1]]?>,
+            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $model2[<?=$j?>]-><?=$arrayfk2[$j][$keys[$j][1]]?>,
 <?php $j++?>
 <?php else:?>
 <?php $inte[$i] = $int?>
@@ -262,9 +266,15 @@ class Test<?= $modelClassName ?>Cest
 <?php if(!$key[0]):?>
             <?= "'{$modelClassName}[{$column->name}]' => '$inte[$i]'" ?>,
 <?php endif;?>
-<?php elseif ($column->allowNull==false && $column->type=='date' && !$column->isPrimaryKey):?>
+<?php if(!$isDefault[0]):?>
+            //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
+<?php endif;?>
+<?php elseif ($column->type=='date' && !$column->isPrimaryKey):?>
             <?= "'{$modelClassName}[{$column->name}]' => '$date'" ?>,
-<?php elseif ($column->allowNull==false && $column->type=='text' && !$column->isPrimaryKey):?>
+<?php if(!$isDefault[0]):?>
+            //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
+<?php endif;?>
+<?php elseif (($column->type=='text' || $column->type=='string') && !$column->isPrimaryKey):?>
 <?php if($vfcpf):?>
 <?php $stringe[$i] = $helper->genCpfValid()?>
 <?php elseif($vf[0]):?>
@@ -274,7 +284,7 @@ class Test<?= $modelClassName ?>Cest
 <?php elseif($vfemail):?>
 <?php $stringe[$i] = $email?>
 <?php elseif($key[0]):?>
-            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $category2[<?=$j?>]->id,
+            <?= "'{$modelClassName}[{$column->name}]' =>" ?> $model2[<?=$j?>]->id,
 <?php $j++?>
 <?php else:?>
 <?php $stringe[$i] = $string2?>
@@ -282,8 +292,12 @@ class Test<?= $modelClassName ?>Cest
 <?php if(!$key[0]):?>
             <?= "'{$modelClassName}[{$column->name}]' => '$stringe[$i]'" ?>,
 <?php endif;?>
-<?php elseif ($column->allowNull==false && !$column->isPrimaryKey):?>
+<?php if(!$isDefault[0]):?>
+            //TODO: This attribute "<?=$column->name?>" contains a custom rule "<?=$isDefault[1]?>", enter it manually.
+<?php endif;?>
+<?php elseif (!$column->isPrimaryKey):?>
             <?= "'{$modelClassName}[{$column->name}]' => ''" ?>,
+            // TODO: o "<?= $column->name?>" field not recognized, enter manually.
 <?php endif;?>
 <?php $i++;?>
 <?php endforeach;?>
@@ -293,15 +307,15 @@ class Test<?= $modelClassName ?>Cest
 <?php $vf = $helper->isMinOrMax($column->name,$modelRules)?>
 <?php $vfcpf = $helper->cpfField($column->name,$modelRules)?>
 <?php $key = $helper->isKey($keys, $column->name)?>
-<?php if ($column->allowNull==false && $column->phpType=='integer' && !$column->isPrimaryKey && !$key[0]):?>
+<?php if ($column->phpType=='integer' && !$column->isPrimaryKey && !$key[0]):?>
         $I->seeRecord('app\models\<?= $tableSchema->fullName ?>', [
             <?= "'$column->name' => '$inte[$i]'" ?>,
         ]);
-<?php elseif ($column->allowNull==false && $column->type=='date' && !$column->isPrimaryKey && !$key[0]):?>
+<?php elseif ($column->type=='date' && !$column->isPrimaryKey && !$key[0]):?>
         $I->seeRecord('app\models\<?= $tableSchema->fullName ?>', [
             <?= "'$column->name' => '$date'" ?>,
         ]);
-<?php elseif ($column->allowNull==false && $column->type=='text' && !$column->isPrimaryKey && !$key[0]):?>
+<?php elseif (($column->type=='text' || $column->type=='string') && !$column->isPrimaryKey && !$key[0]):?>
         $I->seeRecord('app\models\<?= $tableSchema->fullName ?>', [
             <?= "'$column->name' => '$stringe[$i]'" ?>,
         ]);
@@ -309,7 +323,6 @@ class Test<?= $modelClassName ?>Cest
 <?php $i++;?>
 <?php endforeach;?>
     }
-
 }
 <?php $helper->testerExecOrder()?>
 <?php else:?>

@@ -1,5 +1,6 @@
 <?php
 
+use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use \yii\validators;
 
@@ -35,20 +36,21 @@ $date = date('d/m/Y').'11';
 $int = 100;
 $time = '01:00:00';
 $bool = true;
+$route = Inflector::camel2id($modelClassName);
 echo "<?php\n";
 ?>
 <?php if(file_exists($modelvf)):?>
 class Test<?= $modelClassName ?>DateTypesCest
 {
     public function _before(FunctionalTester $I){
-        $I->login('superadmin','superadmin');
+        // TODO: Enter a login method if needed!
     }
 
     //Test Not Null Fields
     public function <?= $modelClassName . 'NotNullFieds' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for not null fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[]);
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if (($column->allowNull==false && $column->name!=$pks[0]) || $helper->isThisRule($column->name, $modelRules, 'required')): ?>
@@ -67,7 +69,7 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'IntegerFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for integer fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if (!$column->isPrimaryKey && $column->phpType=='integer'):?>
@@ -96,7 +98,7 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'BooleanFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for Boolean fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if (!$column->isPrimaryKey && $column->phpType=='boolean'):?>
@@ -121,7 +123,7 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'DateFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for Date fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[
 <?php $vf = false;?>
 <?php foreach ($tableSchema->columns as $column): ?>
@@ -159,7 +161,7 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'MaxOrMinFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for Min or Max fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $vf = $helper->isMinOrMax($column->name,$modelRules)?>
@@ -189,7 +191,7 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'UrlFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for Url fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if (!$column->isPrimaryKey && $column->type=='url' ):?>
@@ -215,7 +217,7 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'FkFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for fk fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[
 <?php $i = 0?>
 <?php  foreach ($arrayfk as $fk): ?>
@@ -250,11 +252,11 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'UniqueFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for Unique Fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $uni = $helper->uniqueField($column->name, $modelRules)?>
 <?php if($uni):?>
-        $category = $I->grabRecord('app\models\<?=$modelClassName?>', array());
+        $model = $I->grabRecord('app\models\<?=$modelClassName?>', array());
 <?php break;?>
 <?php endif;?>
 <?php endforeach;?>
@@ -263,27 +265,27 @@ class Test<?= $modelClassName ?>DateTypesCest
 <?php $isCusMens = $helper->isCustomMessage($modelRules, 'unique', $column->name)?>
 <?php if ($column->phpType=='integer' && $uni):?>
         $I->submitForm('form',[
-            <?="'{$modelClassName}[{$column->name}]' => "?>$category-><?=$column->name?>]);
+            <?="'{$modelClassName}[{$column->name}]' => "?>$model-><?=$column->name?>]);
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php elseif(isset($labels[$column->name])):?>
-        $I->see(str_replace('{value}',$category-><?=$column->name?>,'<?= (str_replace('{attribute}', $labels[$column->name], $unique->message))?>'));
+        $I->see(str_replace('{value}',$model-><?=$column->name?>,'<?= (str_replace('{attribute}', $labels[$column->name], $unique->message))?>'));
 <?php endif;?>
 <?php elseif ($column->type=='date' && $uni):?>
         $I->submitForm('form',[
-            <?="'{$modelClassName}[{$column->name}]' => "?>$category-><?=$column->name?>]);
+            <?="'{$modelClassName}[{$column->name}]' => "?>$model-><?=$column->name?>]);
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php elseif(isset($labels[$column->name])):?>
-        $I->see(str_replace('{value}',$category-><?=$column->name?>,'<?= (str_replace('{attribute}', $labels[$column->name], $unique->message))?>'));
+        $I->see(str_replace('{value}',$model-><?=$column->name?>,'<?= (str_replace('{attribute}', $labels[$column->name], $unique->message))?>'));
 <?php endif;?>
-<?php elseif ($column->type=='text' && $uni):?>
+<?php elseif (($column->type=='text' || $column->type=='string') && $uni):?>
         $I->submitForm('form',[
-            <?="'{$modelClassName}[{$column->name}]' => "?>$category-><?=$column->name?>]);
+            <?="'{$modelClassName}[{$column->name}]' => "?>$model-><?=$column->name?>]);
 <?php if ($isCusMens[0]):?>
         $I->see('<?= $isCusMens[1]?>');
 <?php elseif(isset($labels[$column->name])):?>
-        $I->see(str_replace('{value}',$category-><?=$column->name?>,'<?= (str_replace('{attribute}', $labels[$column->name], $unique->message))?>'));
+        $I->see(str_replace('{value}',$model-><?=$column->name?>,'<?= (str_replace('{attribute}', $labels[$column->name], $unique->message))?>'));
 <?php endif;?>
 
 <?php endif;?>
@@ -294,7 +296,7 @@ class Test<?= $modelClassName ?>DateTypesCest
     public function <?= $modelClassName . 'EmailFields' ?>(FunctionalTester $I)
     {
         $I->wantTo('Verify exception for Email fields');
-        $I->amOnPage('<?= $tableSchema->fullName ?>/create');
+        $I->amOnRoute('<?= $route ?>/create');
         $I->submitForm('form',[
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php $vfemail = $helper->emailField($column->name,$modelRules)?>

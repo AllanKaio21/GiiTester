@@ -19,7 +19,13 @@ class helpers
         foreach ($modelR as $rule) {
             if(is_array($rule[0])){
                 if(in_array($atribute, $rule[0])){
-                    if(!array_key_exists($rule[1], $validator)){
+                    if(!array_key_exists($rule[1], $validator) && $rule[1] != CpfValidator::className()){
+                        return [false, $rule[1]];
+                    }
+                }
+            }else{
+                if($atribute == $rule[0]){
+                    if(!array_key_exists($rule[1], $validator) && $rule[1] != CpfValidator::className()){
                         return [false, $rule[1]];
                     }
                 }
@@ -39,24 +45,24 @@ class helpers
         $order = $this->testerOrder();
         $body = ['#! /bin/bash','echo -e "[1] Run all tests  [2] Run a specific test "','echo -n "=> "','read resp','case "$resp" in','   1|1|"")'];
         $nameFile = 'runtests';
-        $file = "/app/$testepath/functional/$nameFile";
+        $file = "../$nameFile";
         $break = "\n";
         foreach ($order as $name){
-            $dir = "/app/$testepath/functional/$name";
+            $dir = "../$testepath/functional/$name";
             if(file_exists($dir)){
-                $cmd = '      "/app/vendor/bin/codecept" "run" "'.$testepath.'/functional/'.$name.'" "--steps"';
+                $cmd = '      "vendor/bin/codecept" "run" "'.$testepath.'/functional/'.$name.'" "--steps"';
                 array_push($body, $cmd);
             }
         }
         $orderDel = array_reverse($order);
         foreach ($orderDel as $name){
-            $dir = "/app/$testepath/functional/$name"."Delete";
+            $dir = "../$testepath/functional/$name"."Delete";
             if(file_exists($dir)){
-                $cmd = '      "/app/vendor/bin/codecept" "run" "'.$testepath.'/functional/'.$name.'Delete" "--steps"';
+                $cmd = '      "vendor/bin/codecept" "run" "'.$testepath.'/functional/'.$name.'Delete" "--steps"';
                 array_push($body, $cmd);
             }
         }
-        array_push($body, '   ;;','   2|2)','      echo -e "Enter test path"','      echo -n "=> "','      read resp','      "/app/vendor/bin/codecept" "run" "$resp"','   ;;', 'esac');
+        array_push($body, '   ;;','   2|2)','      echo -e "Enter test path"','      echo -n "=> "','      read resp','      "vendor/bin/codecept" "run" "$resp"','   ;;', 'esac');
         if (file_exists($file)) {
             $teste = file($file);
             $teste;
@@ -158,7 +164,7 @@ class helpers
     {
         $i = 0;
         $testepath = \Yii::$app->params['testepath'];
-        $file = "/app/$testepath/ordertests.txt";
+        $file = "../$testepath/ordertests.txt";
         if (file_exists($file)) {
             $open = fopen($file, "r");
             while (!feof($open)) {
@@ -196,6 +202,7 @@ class helpers
         }
         return $arrayOrder;
     }
+
     /** Function that checks whether one value points to another.
      * @param $date
      * @param $date2
@@ -218,7 +225,7 @@ class helpers
     public function testerSave($atribute)
     {
         $testepath = \Yii::$app->params['testepath'];
-        $file = "/app/$testepath/ordertests.txt";
+        $file = "../$testepath/ordertests.txt";
         for($i=1;$i<count($atribute);$i++) {
             if (file_exists($file)) {
                 $open = fopen($file, "a+");
@@ -401,12 +408,13 @@ class helpers
      */
     public function cpfField($atribute, $modelR){
         foreach ($modelR as $rules) {
-            if($rules[0]===$atribute) {
-                foreach ($rules as $date) {
-                    if ($date === CpfValidator::className()) {
+            if(is_array($rules[0])){
+                if(in_array($atribute, $rules[0]))
+                        if ($rules[1] === CpfValidator::className())
+                            return true;
+            } elseif ($rules[0] === $atribute) {
+                    if ($rules[1] === CpfValidator::className())
                         return true;
-                    }
-                }
             }
         }
         return false;
@@ -425,8 +433,12 @@ class helpers
                     $value = $value . '' . rand(0, 9);
                 }
             } else {
-                for ($i = 0; $i < $max; $i++) {
-                    $value = $value . '' . rand(0, 9);
+                if ($max > 15)
+                    $value = "Form Tester 001";
+                else {
+                    for ($i = 0; $i < $max; $i++) {
+                        $value = $value . '' . rand(0, 9);
+                    }
                 }
             }
         }else{

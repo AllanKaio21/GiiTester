@@ -1,5 +1,6 @@
 <?php
 
+use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use \yii\validators;
 
@@ -23,6 +24,7 @@ $string = 'Form Tester 002';
 $email = 'formtester@gmail.com';
 $date = date('d/m/Y');
 $int = 100;
+$route = Inflector::camel2id($modelClassName);
 echo "<?php\n";
 ?>
 <?php if(file_exists($modelvf)):?>
@@ -41,7 +43,7 @@ class Test<?= $modelClassName ?>DeleteCest
 <?php $helper->testerSave($atribute)?>
 <?php endif;?>
     public function _before(FunctionalTester $I){
-        $I->login('superadmin','superadmin');
+        // TODO: Enter a login method if needed!
     }
 
     //Test Delete
@@ -49,18 +51,24 @@ class Test<?= $modelClassName ?>DeleteCest
     {
         $I->wantTo('Verify exception for Delete');
 <?php foreach ($tableSchema->columns as $column): ?>
-<?php if ($column->allowNull==false && !$column->isPrimaryKey && $column->type=='text'):?>
-        $category = $I->grabRecord('app\models\<?=$modelClassName?>', array('<?=$column->name?>' => '<?=$string?>'));
+<?php if (!$column->isPrimaryKey && ($column->type=='text' || $column->type=='string')):?>
+        $model = $I->grabRecord('app\models\<?=$modelClassName?>', array(
+            '<?=$column->name?>' => '<?=$string?>'
+            // TODO: Fill the string with the last value of the data in the update
+        ));
 <?php break;?>
-<?php elseif ($column->allowNull==false && !$column->isPrimaryKey && $column->phpType=='integer'):?>
-        $category = $I->grabRecord('app\models\<?=$modelClassName?>', array('<?=$column->name?>' => '<?=$int?>'));
+<?php elseif (!$column->isPrimaryKey && $column->phpType=='integer'):?>
+        $model = $I->grabRecord('app\models\<?=$modelClassName?>', array(
+            '<?=$column->name?>' => '<?=$int?>'
+            // TODO: Fill the string with the last value of the data in the update
+        ));
 <?php break;?>
 <?php endif;?>
 <?php endforeach;?>
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if ($column->isPrimaryKey):?>
-        $id = $category-><?=$column->name?>;
-        $I->sendAjaxPostRequest(['/<?=$tableSchema->fullName?>/delete', 'id' => $id]);
+        $id = $model-><?=$column->name?>;
+        $I->sendAjaxPostRequest('/<?= $route ?>/delete', ['id' => $id]);
 <?php break;?>
 <?php endif;?>
 <?php endforeach;?>
