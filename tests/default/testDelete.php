@@ -53,14 +53,14 @@ class Test<?= $modelClassName ?>DeleteCest
 <?php foreach ($tableSchema->columns as $column): ?>
 <?php if (!$column->isPrimaryKey && ($column->type=='text' || $column->type=='string')):?>
         $model = $I->grabRecord('app\models\<?=$modelClassName?>', array(
-            '<?=$column->name?>' => '<?=$string?>'
             // TODO: Fill the string with the last value of the data in the update
+            '<?=$column->name?>' => '<?=$string?>'
         ));
 <?php break;?>
 <?php elseif (!$column->isPrimaryKey && $column->phpType=='integer'):?>
         $model = $I->grabRecord('app\models\<?=$modelClassName?>', array(
-            '<?=$column->name?>' => '<?=$int?>'
             // TODO: Fill the string with the last value of the data in the update
+            '<?=$column->name?>' => '<?=$int?>'
         ));
 <?php break;?>
 <?php endif;?>
